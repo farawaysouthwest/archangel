@@ -18,7 +18,8 @@ WORKDIR /server/nginx-1.21.6
 
 RUN ./configure --prefix=/server --with-http_ssl_module --add-module=../nginx-rtmp-module \
 && make -j 1 \
-&& make install
+&& make install \
+&& rm ./conf/nginx.conf
 
 FROM ubuntu:latest as runner
 
@@ -27,9 +28,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /server
 
 RUN apt-get -y update && \
-apt-get -y install ffmpeg libpcre3 libpcre3-dev libssl-dev zlib1g-dev
+apt-get -y install ffmpeg libssl-dev
 
 COPY --from=builder /server ./
+COPY ./nginx.conf /server/conf
 
 EXPOSE 8080
 EXPOSE 1935
